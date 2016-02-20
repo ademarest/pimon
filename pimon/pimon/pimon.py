@@ -148,3 +148,5 @@ print("Return value for data gathering after 30 seconds: %d" % testGather)
 
 testPing = pingTest("3", "8.8.8.8")
 print("Return values for ping test %d \n" % testPing)
+
+#Test Commit
