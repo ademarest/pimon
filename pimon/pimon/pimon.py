@@ -18,6 +18,7 @@ import subprocess
 import time
 
 
+
 def pingTest(attempts, address):
 	
     #Did the attempt string pass?
@@ -29,7 +30,7 @@ def pingTest(attempts, address):
     #Long command to run a ping
 	pingTest = subprocess.Popen('ping -c %s %s' % (attempts, 
 	address), shell=True)
-    
+
     #Wait until pings
 	time.sleep(5)
 	
@@ -69,6 +70,7 @@ def startEscape(ssid):
     openvpn = openvpn.wait()
     
     #Returns tuple of values)
+    
     return (wlanUp, stunnel, openvpn)
 
 def stopEscape(ssid):
@@ -114,37 +116,33 @@ def monitorMode(state, interface):
     #return
     return monitorMode
 
-def gatherData(interface,):
+
+def gatherData():
     
-    gatherData = subprocess.Popen('screen -S myScreen airodump-ng %s -w testcapture --output-format csv -M -u 30' 
-    % (interface), shell=True)
+    prompt = '> '
     
-    #time.sleep(30)
-    #gatherData.kill()
-    #gatherData = gatherData.wait()
+    print("Please input the desired values for tcpdump")
+    print("What is the name of the process screen?")
+    screenName = input(prompt)
+    
+    print("How long in seconds will tcpdump capture?")
+    capTime = input(prompt)
+    
+    print("Which interface will tcpdump use? Hint: wlan1mon")
+    interface = input(prompt)
+    
+    print("How many pcap files will tcpdump make?")
+    print("Note that file number*capturetime is total time.")
+    fileQuanitity = input(prompt)
+    
+    print("What will the pcap sequence be named?")
+    fileName = input(prompt)
+    
+    print("Beginning capture...")
+
+    gatherData = subprocess.Popen('screen -S %s tcpdump -G %s -s 0 -i %s -W %s -w %s.pcap' 
+    % (screenName, capTime, interface, fileQuanity, fileName), shell=True)
+
+    gatherData = gatherData.wait()
 
     return gatherData
-
-
-#For the main I REALLY NEED an options menu
-
-testEscape = startEscape("ssc")
-print("Return Values for escape %s \n" % (testEscape,))
-
-testPing = pingTest("3", "8.8.8.8")
-print("Return values for ping test %d \n" % testPing)
-
-#stopEscape = stopEscape("westseattle")
-#print("Return values for stopping escape %s \n" % (stopEscape,))
-
-#Sets interface into or out of monitor mode
-#into is start,wlan1
-#out of is stop wlan1mon
-testMonitor = monitorMode("start", "wlan1")
-print("Return value for monitor mode %d" % testMonitor)
-
-testGather = gatherData("wlan1mon")
-print("Return value for data gathering after 30 seconds: %d" % testGather)
-
-testPing = pingTest("3", "8.8.8.8")
-print("Return values for ping test %d \n" % testPing)
