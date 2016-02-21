@@ -116,9 +116,7 @@ def monitorMode(state, interface):
     #return
     return monitorMode
 
-
-def gatherData():
-    
+def inputGatherData():     
     prompt = '> '
     
     print("Please input the desired values for tcpdump")
@@ -139,6 +137,11 @@ def gatherData():
     fileName = input(prompt)
     
     print("Beginning capture...")
+    
+    gatherData(screenName, capTime, interface, fileQuanity, fileName)
+    
+
+def gatherData(screenName, capTime, interface, fileQuanity, fileName):
 
     gatherData = subprocess.Popen('screen -S %s tcpdump -G %s -s 0 -i %s -W %s -w %s.pcap' 
     % (screenName, capTime, interface, fileQuanity, fileName), shell=True)
