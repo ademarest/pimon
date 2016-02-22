@@ -41,12 +41,22 @@ def pingTest(attempts, address):
     #This returns 1 or 0 to the main program.
 	return pingTest
 
-def startEscape(ssid):
-    #If all you have is a hammer...
-    print("ssid set to: %s" % ssid)
+def escapeInput():
+    prompt = '> '
+    
+    print("Please input the desired Wifi SSID")
+    ssid = input(prompt)
+    
+    print("Starting or stopping the stack?")
+    status = input(prompt)
+    
+    escape(ssid, status)
+
+def escape(ssid, status):
+
 
     #bring up interface
-    wlanUp = subprocess.Popen('netctl start %s' % (ssid),
+    wlanUp = subprocess.Popen('netctl %s %s' % (status, ssid),
     shell=True)
 
     time.sleep(20)
@@ -54,7 +64,7 @@ def startEscape(ssid):
     wlanUp = wlanUp.wait()
 
     #Start stunnel
-    stunnel = subprocess.Popen('systemctl start stunnel', 
+    stunnel = subprocess.Popen('systemctl %s stunnel' % (status),
     shell=True)
     
     time.sleep(5)
@@ -62,7 +72,7 @@ def startEscape(ssid):
     stunnel = stunnel.wait()
 
     #Start openvpn client configuration
-    openvpn = subprocess.Popen('systemctl start openvpn@client', 
+    openvpn = subprocess.Popen('systemctl %s openvpn@client' % (status), 
     shell=True)
     
     time.sleep(5)
@@ -73,34 +83,34 @@ def startEscape(ssid):
     
     return (wlanUp, stunnel, openvpn)
 
-def stopEscape(ssid):
-    #This is just start escape in reverse order
-    #Stop openvpn
-    openvpn = subprocess.Popen('systemctl stop openvpn@client', 
-    shell=True)
+# def stopEscape(ssid):
+    # #This is just start escape in reverse order
+    # #Stop openvpn
+    # openvpn = subprocess.Popen('systemctl stop openvpn@client', 
+    # shell=True)
     
-    time.sleep(5)
+    # time.sleep(5)
     
-    openvpn = openvpn.wait()
+    # openvpn = openvpn.wait()
     
-    #Stop Stunnel
-    stunnel = subprocess.Popen('systemctl stop stunnel', 
-    shell=True)
+    # #Stop Stunnel
+    # stunnel = subprocess.Popen('systemctl stop stunnel', 
+    # shell=True)
     
-    time.sleep(5)
+    # time.sleep(5)
 
-    stunnel = stunnel.wait()
+    # stunnel = stunnel.wait()
 
-    #Bring down interface   
-    wlanUp = subprocess.Popen('netctl stop %s' % (ssid),
-    shell=True)
+    # #Bring down interface   
+    # wlanUp = subprocess.Popen('netctl stop %s' % (ssid),
+    # shell=True)
 
-    time.sleep(20)
+    # time.sleep(20)
 
-    wlanUp = wlanUp.wait()
+    # wlanUp = wlanUp.wait()
     
-    #return tuple of values
-    return (wlanUp, stunnel, openvpn)
+    # #return tuple of values
+    # return (wlanUp, stunnel, openvpn)
 
 def monitorMode(state, interface):
     #State is start or stop
@@ -138,8 +148,7 @@ def inputGatherData():
     
     print("Beginning capture...")
     
-    gatherData(screenName, capTime, interface, fileQuanity, fileName)
-    
+    gatherData(screenName, capTime, interface, fileQuanity, fileName)   
 
 def gatherData(screenName, capTime, interface, fileQuanity, fileName):
 
@@ -149,3 +158,15 @@ def gatherData(screenName, capTime, interface, fileQuanity, fileName):
     gatherData = gatherData.wait()
 
     return gatherData
+
+print("What would you like to do?")
+print("1: Start or stop stunnel/openvpn)")
+print("2: Start Packet Capture")
+prompt = '> '
+selection = input(prompt)
+
+if selection == '1':
+    startEscape(ssid)
+
+elif selection == '2':
+    inputGatherData()
