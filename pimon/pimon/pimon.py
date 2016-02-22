@@ -17,7 +17,7 @@ import os
 import subprocess
 import time
 
-def pintTestInput():
+def pingInput():
     prompt = '> '
     
     print("Use default dns ping configuration? yes/no")
@@ -25,7 +25,7 @@ def pintTestInput():
 
     
     if selection == 'yes':
-        address = '8.8.8.8'
+        address = '10.8.0.1'
         attempts = '3'
 
     elif selection == 'no':
@@ -36,9 +36,9 @@ def pintTestInput():
         print("How many ping attempts?")
         attempts = input(prompt)
         
-    return (address, attempts)
+    return (attempts, address)
 
-def pingTest(attempts, address):
+def ping(attempts, address):
 	
     #Did the attempt string pass?
 	print("Ping attempts set to: %s" % attempts)
@@ -73,12 +73,13 @@ def escapeInput():
 
 def escape(ssid, status):
 
-
+    #Kill the DHCP to windows
+    subprocess.Popen('netctl stop ethernet-dhcp', shell=True)
     #bring up interface
     wlanUp = subprocess.Popen('netctl %s %s' % (status, ssid),
     shell=True)
 
-    time.sleep(20)
+    time.sleep(5)
 
     wlanUp = wlanUp.wait()
 
@@ -98,10 +99,10 @@ def escape(ssid, status):
     
     openvpn = openvpn.wait()
     
-    #Returns tuple of values)
-    
-  
+    #Returns tuple of values
+        
     return (wlanUp, stunnel, openvpn)
+        
 
 def monitorInput():
     subprocess.Popen('ip link', shell=True)
@@ -128,6 +129,7 @@ def monitorMode(state, interface):
     
     #return
     return monitorMode
+
 
 def gatherDataInput():     
     prompt = '> '
@@ -162,15 +164,93 @@ def gatherData(screenName, capTime, interface, fileQuanity, fileName):
 
     return gatherData
 
+def connect():
+    
+    #Creates a configureation tuple from escapeInput()
+    escapeConf = escapeInput()
+
+    #Asks the user for ping testing parameters.
+    pingConf = pingInput()
+    
+    #Starts the network escape with the escapeConf tuple
+    escape(*escapeConf)
+
+    
+    #If the user decided to start the connection process
+    #rather than stop or reset it, then pimon will attempt
+    #to maintain the connection
+    if escapeConf[1] == 'start':
+        
+        #Determines if the pi is connected to the network.
+        escapeState = ping(*pingConf)
+        
+        #If the pi has failed to connect on the first try it
+        # will keep trying to reconnect to the network.
+        while escapeState != 0:
+        
+            #This stops all network magic for a fresh start.
+            escape(escapeConf[0], 'stop')
+        
+            #Helpful debuggin on the escape state.
+            print("escape state: %s" % escapeState)
+        
+            #This keeps the stop/start process from stepping
+            #on its own toes.
+            time.sleep(2)
+        
+            #Starts all network magic.
+            escape(escapeConf[0], 'start')
+        
+            #Tests to see if a connection is esablished with
+            #ping
+            escapeState = ping(*pingConf)
+        
+        #A Connection has been established with the VPN server.
+        #Great!
+        while escapeState == 0:
+            
+            #Ping out every minute to make sure the connection
+            #is still up.
+            time.sleep(30)
+            
+            #Ping test
+            escapeState = ping(*pingConf)
+            
+            #Helpful debugging on the escape state.
+            print("escape state: %s" % escapeState)
+            
+            #If the pi loses it's established connection it will
+            #attempt to reconnect itself.
+            while escapeState != 0:
+                
+                #This stops all network magic for a fresh start.                
+                escape(escapeConf[0], 'stop')
+                
+                #Helpful debuggin information on the escape state.
+                print("escape state: %s" % escapeState)
+                
+                #This keeps the stop/start process from stepping
+                #on its own toes.
+                time.sleep(2)
+                
+                #Starts all the network magic
+                escape(escapeConf[0], 'start')
+                
+                #Tests to see if a connection is esablished with
+                #ping
+                escapeState = ping(*pingConf)
+    else:
+        print("Oh no something has broken!")     
+
 print("What would you like to do?")
-print("1: Start or stop stunnel/openvpn")
+print("1: Configure a connection")
 print("2: Start or stop monitor mode")
 print("3: Start Packet Capture")
 prompt = '> '
 selection = input(prompt)
 
 if selection == '1':
-    escape(*escapeInput())
+    connect()
 
 elif selection == '2':
     monitorMode(*monitorInput())
