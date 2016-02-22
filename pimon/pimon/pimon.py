@@ -17,7 +17,26 @@ import os
 import subprocess
 import time
 
+def pintTestInput():
+    prompt = '> '
+    
+    print("Use default dns ping configuration? yes/no")
+    selection = input(prompt)
 
+    
+    if selection == 'yes':
+        address = '8.8.8.8'
+        attempts = '3'
+
+    elif selection == 'no':
+
+        print("Please input the DNS IP Address")
+        address = input(prompt)
+    
+        print("How many ping attempts?")
+        attempts = input(prompt)
+        
+    return (address, attempts)
 
 def pingTest(attempts, address):
 	
@@ -50,7 +69,7 @@ def escapeInput():
     print("Starting or stopping the stack?")
     status = input(prompt)
     
-    escape(ssid, status)
+    return (ssid, status)
 
 def escape(ssid, status):
 
@@ -81,36 +100,20 @@ def escape(ssid, status):
     
     #Returns tuple of values)
     
+  
     return (wlanUp, stunnel, openvpn)
 
-# def stopEscape(ssid):
-    # #This is just start escape in reverse order
-    # #Stop openvpn
-    # openvpn = subprocess.Popen('systemctl stop openvpn@client', 
-    # shell=True)
-    
-    # time.sleep(5)
-    
-    # openvpn = openvpn.wait()
-    
-    # #Stop Stunnel
-    # stunnel = subprocess.Popen('systemctl stop stunnel', 
-    # shell=True)
-    
-    # time.sleep(5)
+def monitorInput():
+    subprocess.Popen('ip link', shell=True)
+    time.sleep(1)
+    prompt = '> '
 
-    # stunnel = stunnel.wait()
-
-    # #Bring down interface   
-    # wlanUp = subprocess.Popen('netctl stop %s' % (ssid),
-    # shell=True)
-
-    # time.sleep(20)
-
-    # wlanUp = wlanUp.wait()
+    print("Specify which interface will go into monitor mode.")
+    interface = input(prompt)
+    print("Starting or stopping monitor mode?")
+    state = input(prompt)
     
-    # #return tuple of values
-    # return (wlanUp, stunnel, openvpn)
+    return (state, interface)
 
 def monitorMode(state, interface):
     #State is start or stop
@@ -126,7 +129,7 @@ def monitorMode(state, interface):
     #return
     return monitorMode
 
-def inputGatherData():     
+def gatherDataInput():     
     prompt = '> '
     
     print("Please input the desired values for tcpdump")
@@ -141,14 +144,14 @@ def inputGatherData():
     
     print("How many pcap files will tcpdump make?")
     print("Note that file number*capturetime is total time.")
-    fileQuanitity = input(prompt)
+    fileQuantity = input(prompt)
     
     print("What will the pcap sequence be named?")
     fileName = input(prompt)
     
     print("Beginning capture...")
     
-    gatherData(screenName, capTime, interface, fileQuanity, fileName)   
+    return (screenName, capTime, interface, fileQuantity, fileName)   
 
 def gatherData(screenName, capTime, interface, fileQuanity, fileName):
 
@@ -160,13 +163,17 @@ def gatherData(screenName, capTime, interface, fileQuanity, fileName):
     return gatherData
 
 print("What would you like to do?")
-print("1: Start or stop stunnel/openvpn)")
-print("2: Start Packet Capture")
+print("1: Start or stop stunnel/openvpn")
+print("2: Start or stop monitor mode")
+print("3: Start Packet Capture")
 prompt = '> '
 selection = input(prompt)
 
 if selection == '1':
-    startEscape(ssid)
+    escape(*escapeInput())
 
 elif selection == '2':
-    inputGatherData()
+    monitorMode(*monitorInput())
+
+elif selection == '3':
+    gatherData(*gatherDataInput())
