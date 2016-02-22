@@ -74,7 +74,7 @@ def escapeInput():
 def escape(ssid, status):
 
     #Kill the DHCP to windows
-    subprocess.Popen('netctl stop ethernet-dhcp', shell=True)
+    #subprocess.Popen('netctl stop ethernet-dhcp', shell=True)
     #bring up interface
     wlanUp = subprocess.Popen('netctl %s %s' % (status, ssid),
     shell=True)
@@ -157,8 +157,8 @@ def gatherDataInput():
 
 def gatherData(screenName, capTime, interface, fileQuanity, fileName):
 
-    gatherData = subprocess.Popen('screen -S %s tcpdump -G %s -s 0 -i %s -W %s -w %s.pcap' 
-    % (screenName, capTime, interface, fileQuanity, fileName), shell=True)
+    gatherData = subprocess.Popen('screen -S %s tcpdump -pni %s -s65535 -G %s -w \'%s_%%Y-%%m-%%d_%%H:%%M:%%S.pcap\' -W %s -z gzip' 
+    % (screenName, interface, capTime, fileName, fileQuanity), shell=True)
 
     gatherData = gatherData.wait()
 
@@ -257,3 +257,4 @@ elif selection == '2':
 
 elif selection == '3':
     gatherData(*gatherDataInput())
+
