@@ -130,8 +130,36 @@ def monitorMode(state, interface):
     #return
     return monitorMode
 
+def gatherDataAiroInput():
+    prompt = '> '
 
-def gatherDataInput():     
+    print("Please input the desired values for Airodump")
+    print("What is the name of the process screen?")
+    screenName = input(prompt)
+    
+    print("Which interface will Airodump use? Hint: wlan1mon")
+    interface = input(prompt)
+    
+    print("What will the .csv file be named?")
+    fileName = input(prompt)   
+
+    print("How often will the display refresh?")
+    refreshRate = input(prompt)
+
+    return(screenName, interface, fileName, refreshRate)
+    
+
+def gatherDataAiro(screenName, interface, fileName, refreshRate):
+    
+    gatherDataAiro = subprocess.Popen('screen -S %s airodump-ng %s -w %s --output-format csv -M -u %s'
+    % (screenName, interface, fileName, refreshRate), shell=True)
+
+    gatherDataAiro = gatherDataAiro.wait()
+    
+    return gatherDataAiro
+    
+
+def gatherDataInputTcp():     
     prompt = '> '
     
     print("Please input the desired values for tcpdump")
@@ -155,14 +183,15 @@ def gatherDataInput():
     
     return (screenName, capTime, interface, fileQuantity, fileName)   
 
-def gatherData(screenName, capTime, interface, fileQuanity, fileName):
 
-    gatherData = subprocess.Popen('screen -S %s tcpdump -pni %s -s65535 -G %s -w \'%s_%%Y-%%m-%%d_%%H:%%M:%%S.pcap\' -W %s -z gzip' 
+def gatherDataTcp(screenName, capTime, interface, fileQuanity, fileName):
+
+    gatherDataTcp = subprocess.Popen('screen -S %s tcpdump -pni %s -s65535 -G %s -w \'%s_%%Y-%%m-%%d_%%H:%%M:%%S.pcap\' -W %s -z gzip' 
     % (screenName, interface, capTime, fileName, fileQuanity), shell=True)
 
-    gatherData = gatherData.wait()
+    gatherDataTcp = gatherDataTcp.wait()
 
-    return gatherData
+    return gatherDataTcp
 
 def connect():
     
@@ -245,7 +274,9 @@ def connect():
 print("What would you like to do?")
 print("1: Configure a connection")
 print("2: Start or stop monitor mode")
-print("3: Start Packet Capture")
+print("3: Start Packet Capture tcpdump")
+print("4: Start Packet Capture airodump")
+
 prompt = '> '
 selection = input(prompt)
 
@@ -256,5 +287,7 @@ elif selection == '2':
     monitorMode(*monitorInput())
 
 elif selection == '3':
-    gatherData(*gatherDataInput())
+    gatherDataTcp(*gatherDataInputTcp())
 
+elif selection == '4':
+    gatherDataAiro(*gatherDataAiroInput())
