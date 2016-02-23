@@ -159,7 +159,7 @@ def gatherDataAiro(screenName, interface, fileName, refreshRate):
     return gatherDataAiro
     
 
-def gatherDataInputTcp():     
+def gatherDataTcpInput():     
     prompt = '> '
     
     print("Please input the desired values for tcpdump")
@@ -287,7 +287,7 @@ elif selection == '2':
     monitorMode(*monitorInput())
 
 elif selection == '3':
-    gatherDataTcp(*gatherDataInputTcp())
+    gatherDataTcp(*gatherDataTcpInput())
 
 elif selection == '4':
     gatherDataAiro(*gatherDataAiroInput())
