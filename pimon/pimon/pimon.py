@@ -146,13 +146,16 @@ def gatherDataAiroInput():
     print("How often will the display refresh?")
     refreshRate = input(prompt)
 
-    return(screenName, interface, fileName, refreshRate)
+    print("How ofter with airodump write a capture file?")
+    writeInterval = input(prompt)
+
+    return(screenName, interface, fileName, writeInterval, refreshRate)
     
 
-def gatherDataAiro(screenName, interface, fileName, refreshRate):
+def gatherDataAiro(screenName, interface, fileName, writeInterval, refreshRate):
     
-    gatherDataAiro = subprocess.Popen('screen -S %s airodump-ng %s -w %s --output-format csv -M -u %s'
-    % (screenName, interface, fileName, refreshRate), shell=True)
+    gatherDataAiro = subprocess.Popen('screen -S %s airodump-ng %s -w %s --write-interval %s --output-format csv -M -u %s'
+    % (screenName, interface, fileName, writeInterval, refreshRate), shell=True)
 
     gatherDataAiro = gatherDataAiro.wait()
     
