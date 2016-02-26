@@ -132,10 +132,14 @@ def monitorMode(state, interface):
 
 def gatherDataAiroInput():
     prompt = '> '
+    
+    screenName = 'airodump'
+    interface = 'wlan1mon'
+    writeInterval = '60'
+    capTime = '3600'
 
     print("Please input the desired values for Airodump")
-    print("What is the name of the process screen?")
-    screenName = input(prompt)
+
     
     print("Which interface will Airodump use? Hint: wlan1mon")
     interface = input(prompt)
@@ -143,22 +147,42 @@ def gatherDataAiroInput():
     print("What will the .csv file be named?")
     fileName = input(prompt)   
 
-    print("How often will the display refresh?")
-    refreshRate = input(prompt)
-
-    print("How ofter with airodump write a capture file?")
+    print("How often will airodump write a capture file? 0 for a single file.")
     writeInterval = input(prompt)
 
-    return(screenName, interface, fileName, writeInterval, refreshRate)
+    print("How long will airodump capture (seconds)? 0 for no time limit.")
+    capTime = input(prompt)
+
+    return(interface, fileName, writeInterval, capTime)
     
 
-def gatherDataAiro(screenName, interface, fileName, writeInterval, refreshRate):
-    
-    gatherDataAiro = subprocess.Popen('screen -S %s airodump-ng %s -w %s --write-interval %s --output-format csv -M -u %s'
-    % (screenName, interface, fileName, writeInterval, refreshRate), shell=True)
+def gatherDataAiro(interface, fileName, writeInterval, capTime):
 
+    capTime = int(capTime)
+    writeInterval = int(writeInterval)
+    
+    while capTime == 0:
+
+        if writeInterval == 0:
+            gatherDataAiro = subprocess.Popen('airodump-ng %s -w %s --output-format csv -M'
+            % (interface, fileName), shell=True)
+
+        gatherDataAiro = subprocess.Popen('airodump-ng %s -w %s --output-format csv -M'
+        % (interface, fileName), shell=True)
+    
+        time.sleep(writeInterval)
+
+        gatherDataAiro.kill()
+
+    for capTime in range (0,int(capTime/writeInterval)):
+        gatherDataAiro = subprocess.Popen('airodump-ng %s -w %s --output-format csv -M'
+        % (interface, fileName), shell=True)
+            
+        time.sleep(writeInterval)
+
+        gatherDataAiro.kill()
+        
     gatherDataAiro = gatherDataAiro.wait()
-    
     return gatherDataAiro
     
 
@@ -166,8 +190,7 @@ def gatherDataTcpInput():
     prompt = '> '
     
     print("Please input the desired values for tcpdump")
-    print("What is the name of the process screen?")
-    screenName = input(prompt)
+
     
     print("How long in seconds will tcpdump capture?")
     capTime = input(prompt)
@@ -184,13 +207,13 @@ def gatherDataTcpInput():
     
     print("Beginning capture...")
     
-    return (screenName, capTime, interface, fileQuantity, fileName)   
+    return (capTime, interface, fileQuantity, fileName)   
 
 
-def gatherDataTcp(screenName, capTime, interface, fileQuanity, fileName):
+def gatherDataTcp(capTime, interface, fileQuanity, fileName):
 
-    gatherDataTcp = subprocess.Popen('screen -S %s tcpdump -pni %s -s65535 -G %s -w \'%s_%%Y-%%m-%%d_%%H:%%M:%%S.pcap\' -W %s -z gzip' 
-    % (screenName, interface, capTime, fileName, fileQuanity), shell=True)
+    gatherDataTcp = subprocess.Popen('tcpdump -pni %s -s65535 -G %s -w \'%s_%%Y-%%m-%%d_%%H:%%M:%%S.pcap\' -W %s -z gzip' 
+    % (interface, capTime, fileName, fileQuanity), shell=True)
 
     gatherDataTcp = gatherDataTcp.wait()
 
