@@ -174,7 +174,7 @@ def gatherDataAiro(interface, fileName, writeInterval, capTime):
     
         time.sleep(writeInterval)
 
-        gatherDataAiro.send_signal(signal.SIGINT)
+        gatherDataAiro.terminate()
 
     #If the user has specified both a capture time limit and a set number of files.
     
@@ -184,9 +184,10 @@ def gatherDataAiro(interface, fileName, writeInterval, capTime):
             
         time.sleep(writeInterval)
 
-        gatherDataAiro.send_signal(signal.SIGINT)
+        gatherDataAiro.terminate()
         
-    gatherDataAiro = gatherDataAiro.send_signal(signal.SIGINT)
+    gatherDataAiro = gatherDataAiro.communicate()
+    gatherDataAiro.terminate()
     
     return gatherDataAiro
     
