@@ -291,7 +291,7 @@ def connect():
                 
                 #This keeps the stop/start process from stepping
                 #on its own toes.
-                time.sleep(2)
+                time.sleep(5)
                 
                 #Starts all the network magic
                 escape(escapeConf[0], 'start')
