@@ -81,7 +81,7 @@ def escape(ssid, status):
 
     time.sleep(5)
 
-    wlanUp = wlanUp.wait()
+    wlanUp = wlanUp.communicate()
 
     #Start stunnel
     stunnel = subprocess.Popen('systemctl %s stunnel' % (status),
@@ -89,7 +89,7 @@ def escape(ssid, status):
     
     time.sleep(5)
 
-    stunnel = stunnel.wait()
+    stunnel = stunnel.communicate()
 
     #Start openvpn client configuration
     openvpn = subprocess.Popen('systemctl %s openvpn@client' % (status), 
@@ -97,7 +97,7 @@ def escape(ssid, status):
     
     time.sleep(5)
     
-    openvpn = openvpn.wait()
+    openvpn = openvpn.communicate()
     
     #Returns several values as a tuple.
         
