@@ -99,7 +99,7 @@ def escape(ssid, status):
     
     openvpn = openvpn.wait()
     
-    #Returns tuple of values
+    #Returns several values as a tuple.
         
     return (wlanUp, stunnel, openvpn)
         
@@ -162,27 +162,32 @@ def gatherDataAiro(interface, fileName, writeInterval, capTime):
     writeInterval = int(writeInterval)
     
     while capTime == 0:
-
+        
+        #If the user wants one file written until it is stopped.
         if writeInterval == 0:
             gatherDataAiro = subprocess.Popen('airodump-ng %s -w %s --output-format csv -M'
             % (interface, fileName), shell=True)
 
+        #If the user wants files every x seconds until it is stopped.
         gatherDataAiro = subprocess.Popen('airodump-ng %s -w %s --output-format csv -M'
         % (interface, fileName), shell=True)
     
         time.sleep(writeInterval)
 
-        gatherDataAiro.kill()
+        gatherDataAiro.send_signal(signal.SIGINT)
 
+    #If the user has specified both a capture time limit and a set number of files.
+    
     for capTime in range (0,int(capTime/writeInterval)):
         gatherDataAiro = subprocess.Popen('airodump-ng %s -w %s --output-format csv -M'
         % (interface, fileName), shell=True)
             
         time.sleep(writeInterval)
 
-        gatherDataAiro.kill()
+        gatherDataAiro.send_signal(signal.SIGINT)
         
-    gatherDataAiro = gatherDataAiro.wait()
+    gatherDataAiro = gatherDataAiro.send_signal(signal.SIGINT)
+    
     return gatherDataAiro
     
 
