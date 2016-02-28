@@ -55,7 +55,7 @@ def ping(attempts, address):
 	
     #This will set pingTest as a boolean int (0 or 1)
     #I will now procede to clobber my variable
-	pingTest = pingTest.wait()
+	pingTest = pingTest.communicate()
 	
     #This returns 1 or 0 to the main program.
 	return pingTest
@@ -125,7 +125,7 @@ def monitorMode(state, interface):
     interface), shell=True)
     
     #clobber
-    monitorMode = monitorMode.wait()
+    monitorMode = monitorMode.communicate()
     
     #return
     return monitorMode
