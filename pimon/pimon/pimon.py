@@ -56,6 +56,8 @@ def ping(attempts, address):
     #This will set pingTest as a boolean int (0 or 1)
     #I will now procede to clobber my variable
 	pingTest = pingTest.communicate()
+
+    print("Ping test returns: %s" % pingTest,)
 	
     #This returns 1 or 0 to the main program.
 	return pingTest
@@ -253,7 +255,7 @@ def connect():
             escape(escapeConf[0], 'stop')
         
             #Helpful debuggin on the escape state.
-            print("escape state: %s" % escapeState)
+            print("escape state: %s" % escapeState,)
         
             #This keeps the stop/start process from stepping
             #on its own toes.
@@ -278,7 +280,7 @@ def connect():
             escapeState = ping(*pingConf)
             
             #Helpful debugging on the escape state.
-            print("escape state: %s" % escapeState)
+            print("escape state: %s" % escapeState,)
             
             #If the pi loses it's established connection it will
             #attempt to reconnect itself.
@@ -288,7 +290,7 @@ def connect():
                 escape(escapeConf[0], 'stop')
                 
                 #Helpful debuggin information on the escape state.
-                print("escape state: %s" % escapeState)
+                print("escape state: %s" % escapeState,)
                 
                 #This keeps the stop/start process from stepping
                 #on its own toes.
