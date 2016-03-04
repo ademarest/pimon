@@ -16,6 +16,7 @@
 import os
 import subprocess
 import time
+import string
 
 def pingInput():
     prompt = '> '
@@ -48,7 +49,7 @@ def ping(attempts, address):
 	
     #Long command to run a ping
 	pingTest = subprocess.Popen('ping -c %s %s' % (attempts, 
-	address), shell=True)
+	address), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     #Wait until pings
 	time.sleep(5)
@@ -56,8 +57,8 @@ def ping(attempts, address):
     #This will set pingTest as a boolean int (0 or 1)
     #I will now procede to clobber my variable
 	pingTest = pingTest.communicate()
-
-    print("Ping test returns: %s" % pingTest,)
+	
+	print("Ping test returns: %s" % (pingTest,))
 	
     #This returns 1 or 0 to the main program.
 	return pingTest
@@ -227,8 +228,8 @@ def gatherDataTcp(capTime, interface, fileQuanity, fileName):
 
     return gatherDataTcp
 
-def connect():
-    
+def connect():    
+
     #Creates a configureation tuple from escapeInput()
     escapeConf = escapeInput()
 
@@ -245,17 +246,22 @@ def connect():
     if escapeConf[1] == 'start':
         
         #Determines if the pi is connected to the network.
-        escapeState = ping(*pingConf)
-        
+        pingReturn = ping(*pingConf)
+        print("Output before parse: %s" % pingReturn[0])
+        pingStdout = pingReturn[0].decode("utf-8")
+        noResponse = '0 received'
+        escapeState = pingStdout.find(noResponse)
+        print("Output of the escapeState: %d" % escapeState)
+
         #If the pi has failed to connect on the first try it
         # will keep trying to reconnect to the network.
-        while escapeState != 0:
+        while escapeState != -1:
         
             #This stops all network magic for a fresh start.
             escape(escapeConf[0], 'stop')
         
             #Helpful debuggin on the escape state.
-            print("escape state: %s" % escapeState,)
+            print("escape state: %d" % (escapeState))
         
             #This keeps the stop/start process from stepping
             #on its own toes.
@@ -266,31 +272,41 @@ def connect():
         
             #Tests to see if a connection is esablished with
             #ping
-            escapeState = ping(*pingConf)
-        
+            pingReturn = ping(*pingConf)
+            print("Output before parse: %s" % pingReturn[0])
+            pingStdout = pingReturn[0].decode("utf-8")
+            noResponse = '0 received'
+            escapeState = pingStdout.find(noResponse)
+            print("Output of the escapeState: %d" % escapeState) 
+       
         #A Connection has been established with the VPN server.
         #Great!
-        while escapeState == 0:
+        while escapeState == -1:
             
             #Ping out every minute to make sure the connection
             #is still up.
             time.sleep(30)
             
             #Ping test
-            escapeState = ping(*pingConf)
+            pingReturn = ping(*pingConf)
+            print("Output before parse: %s" % pingReturn[0])
+            pingStdout = pingReturn[0].decode("utf-8")
+            noResponse = '0 received'
+            escapeState = pingStdout.find(noResponse)
+            print("Output of the escapeState: %d" % escapeState)
             
             #Helpful debugging on the escape state.
-            print("escape state: %s" % escapeState,)
+            print("escape state: %s" % (escapeState,))
             
             #If the pi loses it's established connection it will
             #attempt to reconnect itself.
-            while escapeState != 0:
+            while escapeState != -1:
                 
                 #This stops all network magic for a fresh start.                
                 escape(escapeConf[0], 'stop')
                 
                 #Helpful debuggin information on the escape state.
-                print("escape state: %s" % escapeState,)
+                print("escape state: %s" % (escapeState,))
                 
                 #This keeps the stop/start process from stepping
                 #on its own toes.
@@ -301,9 +317,14 @@ def connect():
                 
                 #Tests to see if a connection is esablished with
                 #ping
-                escapeState = ping(*pingConf)
+                pingReturn = ping(*pingConf)
+                print("Output before parse: %s" % pingReturn[0])
+                pingStdout = pingReturn[0].decode("utf-8")
+                noResponse = '0 received'
+                escapeState = pingStdout.find(noResponse)
+                print("Output of the escapeState: %d" % escapeState)
     else:
-        print("Oh no something has broken!")     
+        print("The system is down!")     
 
 print("What would you like to do?")
 print("1: Configure a connection")
